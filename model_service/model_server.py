@@ -11,6 +11,11 @@ model_path = "./final_toxic_model"
 tokenizer = AutoTokenizer.from_pretrained(model_path)
 model = AutoModelForSequenceClassification.from_pretrained(model_path)
 
+label_map = {
+    0: "NON-TOXIC",
+    1: "TOXIC"
+}
+
 @app.route('/predict', methods=['POST'])
 def predict():
     data = request.get_json()
@@ -22,7 +27,10 @@ def predict():
         logits = outputs.logits
         predicted_class = torch.argmax(logits, dim=1).item()
 
-    return jsonify({"prediction": predicted_class})
+    return jsonify({
+        "prediction": label_map[predicted_class]
+    })
+
 
 if __name__ == "__main__":
     app.run(port=5000)

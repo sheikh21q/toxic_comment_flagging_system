@@ -28,9 +28,9 @@ const classifyComment = async (comment) => {
         const result = {
             comment,
             result: res.data.prediction === 1 ? 'TOXIC' : 'NON-TOXIC',
-            confidence: res.data.confidence || 1.0, // you can adjust if you add this later in Python
+            confidence: res.data.confidence || 1.0, 
             processing_time: processingTime,
-            created_date: new Date().toISOString() // Add so history list can use it
+            created_date: new Date().toISOString() 
         };
 
         setCurrentResult(result);
@@ -45,8 +45,6 @@ const classifyComment = async (comment) => {
 };
 
     const clearHistory = async () => {
-        // Note: We can only clear the UI history, not delete from database
-        // Users can delete records through the workspace if needed
         setHistory([]);
         setCurrentResult(null);
     };
