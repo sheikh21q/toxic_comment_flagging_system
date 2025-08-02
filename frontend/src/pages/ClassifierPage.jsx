@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Classification } from "@/entities/Classification";
-import { InvokeLLM } from "@/integrations/Core";
+import axios from 'axios'; 
 import { AlertCircle } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { motion } from "framer-motion";
@@ -15,78 +14,35 @@ export default function ClassifierPage() {
     const [isProcessing, setIsProcessing] = useState(false);
     const [error, setError] = useState(null);
 
-    useEffect(() => {
-        loadHistory();
-    }, []);
 
-    const loadHistory = async () => {
-        try {
-            const data = await Classification.list('-created_date', 10);
-            setHistory(data);
-        } catch (err) {
-            console.error("Error loading history:", err);
-        }
-    };
+const classifyComment = async (comment) => {
+    setIsProcessing(true);
+    setError(null);
+    const startTime = Date.now();
 
-    const classifyComment = async (comment) => {
-        setIsProcessing(true);
-        setError(null);
-        const startTime = Date.now();
+    try {
+        const res = await axios.post('http://localhost:4000/api/classify', { comment });
 
-        try {
-            // Use AI to classify the comment
-            const response = await InvokeLLM({
-                prompt: `Analyze the following comment for toxicity. Consider content that is:
-                - Hateful, abusive, or harassing
-                - Contains threats or incites violence  
-                - Uses profanity or vulgar language
-                - Is discriminatory based on race, gender, religion, etc.
-                - Is severely insulting or demeaning
+        const processingTime = Date.now() - startTime;
 
-                Comment to analyze: "${comment}"
+        const result = {
+            comment,
+            result: res.data.prediction === 1 ? 'TOXIC' : 'NON-TOXIC',
+            confidence: res.data.confidence || 1.0, // you can adjust if you add this later in Python
+            processing_time: processingTime,
+            created_date: new Date().toISOString() // Add so history list can use it
+        };
 
-                Provide a toxicity classification with confidence score.`,
-                response_json_schema: {
-                    type: "object",
-                    properties: {
-                        is_toxic: {
-                            type: "boolean",
-                            description: "True if the comment is toxic, false otherwise"
-                        },
-                        confidence: {
-                            type: "number",
-                            description: "Confidence score between 0 and 1"
-                        },
-                        reasoning: {
-                            type: "string",
-                            description: "Brief explanation of the classification"
-                        }
-                    }
-                }
-            });
+        setCurrentResult(result);
+        setHistory(prev => [result, ...prev]);
 
-            const processingTime = Date.now() - startTime;
-            
-            const result = {
-                comment,
-                result: response.is_toxic ? 'TOXIC' : 'NON-TOXIC',
-                confidence: response.confidence,
-                processing_time: processingTime
-            };
-
-            // Save to database
-            const savedResult = await Classification.create(result);
-            
-            setCurrentResult(savedResult);
-            await loadHistory(); // Refresh history
-
-        } catch (err) {
-            console.error("Classification error:", err);
-            setError("Failed to classify comment. Please try again.");
-        } finally {
-            setIsProcessing(false);
-        }
-    };
+    } catch (err) {
+        console.error("Classification error:", err);
+        setError("Failed to classify comment. Please try again.");
+    } finally {
+        setIsProcessing(false);
+    }
+};
 
     const clearHistory = async () => {
         // Note: We can only clear the UI history, not delete from database
