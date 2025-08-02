@@ -70,10 +70,10 @@ export default function HistoryList({ history, onClearHistory }) {
                                 </div>
                                 <div className="text-right">
                                     <div className="text-xs font-medium text-gray-700">
-                                        {Math.round(item.confidence * 100)}%
+                                        {item.confidence ? `${Math.round(item.confidence * 100)}%` : 'N/A'}
                                     </div>
                                     <div className="text-xs text-gray-400">
-                                        {format(new Date(item.created_date), 'MMM d, HH:mm')}
+                                        {item.created_date ? format(new Date(item.created_date), 'MMM d, HH:mm') : 'Now'}
                                     </div>
                                 </div>
                             </div>

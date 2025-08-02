@@ -9,7 +9,8 @@ export default function ResultDisplay({ result }) {
     if (!result) return null;
 
     const isToxic = result.result === 'TOXIC';
-    const confidencePercentage = Math.round(result.confidence * 100);
+const confidencePercentage = result.confidence ? Math.round(result.confidence * 100) : 100
+
 
     return (
         <motion.div
