@@ -27,5 +27,5 @@ app.use('/api/classify', classifyRoute);
 app.use(notFound);
 app.use(errorHandler);
 
-server.listen(port, () => console.log(`Server started on port ${port}`));
+app.listen(port, () => console.log(`Server started on port ${port}`));
 
