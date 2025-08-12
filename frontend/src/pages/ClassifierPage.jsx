@@ -66,7 +66,7 @@ const classifyComment = async (comment) => {
                         </span>
                     </h1>
                     <p className="text-lg text-gray-600 font-light max-w-2xl mx-auto leading-relaxed">
-                        Advanced AI-powered tool to detect toxic content in comments and text.
+                        Advanced Roberta tool to detect toxic content in comments and text.
                         Get instant classifications with confidence scores.
                     </p>
                 </motion.div>
@@ -124,8 +124,8 @@ const classifyComment = async (comment) => {
                     transition={{ delay: 0.8 }}
                 >
                     <p className="text-sm text-gray-500 font-light">
-                        Classifications are AI-generated and may not be 100% accurate. 
-                        Use as a moderation aid alongside human review.
+                        Classifications are Roberta-generated and may not be 100% accurate. 
+                    
                     </p>
                 </motion.div>
             </div>

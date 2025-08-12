@@ -1,36 +1,67 @@
-from flask import Flask, request, jsonify
-from flask_cors import CORS
-from transformers import AutoTokenizer, AutoModelForSequenceClassification
+import os
 import torch
+from flask import Flask, request, jsonify
+from transformers import AutoTokenizer, AutoModelForSequenceClassification
+import torch.nn.functional as F
 
+# === CONFIGURATION ===
+MODEL_PATH = "./final_toxic_model"
+DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+
+# === LOAD MODEL + TOKENIZER ===
+print("[INFO] Loading model from:", MODEL_PATH)
+
+try:
+    tokenizer = AutoTokenizer.from_pretrained(MODEL_PATH)
+    model = AutoModelForSequenceClassification.from_pretrained(MODEL_PATH)
+    model.to(DEVICE)
+    model.eval()
+    print("[INFO] Model and tokenizer loaded successfully.")
+except Exception as e:
+    print("[ERROR] Failed to load model or tokenizer:\n")
+    print(e)
+    exit(1)
+
+# === FLASK APP ===
 app = Flask(__name__)
-CORS(app)
 
-# Load tokenizer and model from local folder
-model_path = "./final_toxic_model"
-tokenizer = AutoTokenizer.from_pretrained(model_path)
-model = AutoModelForSequenceClassification.from_pretrained(model_path)
-
-label_map = {
-    0: "NON-TOXIC",
-    1: "TOXIC"
-}
-
-@app.route('/predict', methods=['POST'])
+@app.route("/predict", methods=["POST"])
 def predict():
     data = request.get_json()
     comment = data.get("comment", "")
-    inputs = tokenizer(comment, return_tensors="pt", truncation=True, padding=True)
+    if not comment:
+        return jsonify({"error": "No comment provided"}), 400
 
-    with torch.no_grad():
-        outputs = model(**inputs)
-        logits = outputs.logits
-        predicted_class = torch.argmax(logits, dim=1).item()
+    try:
+        inputs = tokenizer(
+            comment,
+            return_tensors="pt",
+            padding=True,
+            truncation=True,
+            max_length=512
+        ).to(DEVICE)
 
-    return jsonify({
-        "prediction": label_map[predicted_class]
-    })
+        with torch.no_grad():
+            outputs = model(**inputs)
+            logits = outputs.logits
+            probs = F.softmax(logits, dim=1)
+            predicted_class = torch.argmax(probs, dim=1).item()
+            confidence = round(probs[0][predicted_class].item(), 2)
 
+        label = "TOXIC" if predicted_class == 1 else "NON-TOXIC"
+        print(f"[PREDICTION] Comment: {comment}")
+        print(f"[PREDICTION] Label: {label}, Confidence: {confidence}")
 
+        return jsonify({
+            "prediction": predicted_class,
+            "label": label,
+            "confidence": confidence
+        })
+
+    except Exception as e:
+        print("[ERROR] Prediction failed:\n", e)
+        return jsonify({"error": "Prediction failed", "details": str(e)}), 500
+
+# === RUN SERVER ===
 if __name__ == "__main__":
-    app.run(port=5000)
+    app.run(host="127.0.0.1", port=5000, debug=True)

@@ -1,0 +1,20 @@
+{
+  "name": "toxic_comment_flagging_system",
+  "version": "1.0.0",
+  "description": "This project is an AI-powered web application that classifies comments as TOXIC or NON-TOXIC using a fine-tuned transformer model. It consists of three main parts:",
+  "main": "index.js",
+  "scripts": {
+    "dev:all": "concurrently \"cd model_service && venv\\Scripts\\activate && python model_server.py\" \"cd backend && npm start\" \"cd frontend && npm run dev\""
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/sheikh21q/toxic_comment_flagging_system.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/sheikh21q/toxic_comment_flagging_system/issues"
+  },
+  "homepage": "https://github.com/sheikh21q/toxic_comment_flagging_system#readme"
+}

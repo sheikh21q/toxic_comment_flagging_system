@@ -1,0 +1,6 @@
+flask
+flask-cors
+transformers
+torch
+sentencepiece>=0.1.99
+protobuf
