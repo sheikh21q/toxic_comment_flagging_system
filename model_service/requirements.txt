@@ -5,3 +5,4 @@ torch
 sentencepiece>=0.1.99
 protobuf
 gdown
+gunicorn
