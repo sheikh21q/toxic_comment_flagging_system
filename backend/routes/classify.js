@@ -8,7 +8,7 @@ classifyRoute.post('/', async (req, res) => {
   const { comment } = req.body;
 
   try {
-    const response = await axios.post('http://127.0.0.1:5000/predict', { comment });
+    const response = await axios.post('https://drive.google.com/drive/folders/1MwfRkW3pyCCys3OzccfdTBGzGbrXhltB?usp=sharing/predict', { comment });
     res.json(response.data);  // { prediction: 0 or 1 }
   } catch (error) {
     console.error('Error calling Python API:', error.message);
