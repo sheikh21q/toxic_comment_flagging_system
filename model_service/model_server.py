@@ -6,6 +6,8 @@ import torch.nn.functional as F
 
 # === CONFIGURATION ===
 MODEL_PATH = "./final_toxic_model"
+if not os.path.exists(MODEL_PATH):
+    gdown.download_folder("https://drive.google.com/drive/folders/1MwfRkW3pyCCys3OzccfdTBGzGbrXhltB?usp=sharing ", quiet=False)
 DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 # === LOAD MODEL + TOKENIZER ===
