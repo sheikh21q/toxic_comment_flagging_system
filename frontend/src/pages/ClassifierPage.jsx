@@ -21,7 +21,7 @@ const classifyComment = async (comment) => {
     const startTime = Date.now();
 
     try {
-        const res = await axios.post('http://localhost:4000/api/classify', { comment });
+        const res = await axios.post('https://toxic-comment-flagging-system-backend.onrender.com/api/classify', { comment });
 
         const processingTime = Date.now() - startTime;
 
